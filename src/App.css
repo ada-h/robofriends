@@ -1,0 +1,9 @@
+h1{
+    font-family: cursive;
+    font-weight:400;
+    
+}
+.center{
+    display:flex;
+    justify-content: center;
+}
