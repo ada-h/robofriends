@@ -12,31 +12,48 @@ import ImageLinkForm from './ImageLinkForm'
 import Rank from './Rank'
 import Signin from './Signin'
 import Clarifai from 'clarifai'
+import Particles from 'react-particles-js'
 import FaceRecogntion from './FaceRecognition'
 
 const app = new Clarifai.App({
     apiKey:'4165a05802dd432f8e4b33a451d8c647'
 });
 
+const particlesOptions = {
+    particles: {
+        number: {
+            value:100,
+            density: {
+                enable:true,
+                value_area: 800,
+                speed: 1.0,              
+            }
+        }
+    }
+    
+}
+
+const initialState = {
+    robots: [],
+    searchfield: '',
+    input: '',
+    imageUrl: '',
+    box:{}, 
+    route: 'signin',
+    isSignedIn: false,
+    user:{
+        id: '',
+        name: '',
+        email: '',
+        entries:0,
+        joined: ''
+    }
+}
+
 class App extends Component{
     constructor(){
         super() 
-        this.state = {
-        robots: [],
-        searchfield: '',
-        input: 'https://i.pinimg.com/originals/b6/a3/51/b6a351a5759986861232edabeb4ec983.png',
-        imageUrl: '',
-        box:{}, 
-        route: 'signin',
-        isSignedIn: false,
-        user:{
-            id: '',
-            name: '',
-            email: '',
-            entries:0,
-            joined: ''
-        }
-        }
+        this.state = initialState  
     }
 
     componentDidMount(){
@@ -69,7 +86,7 @@ class App extends Component{
     }
 
     displayFaceBox =(box) => {
-        this.setState({box: box})
+        this.setState({box: box}); 
     }
   
     onSearchChange = (event) => {
@@ -81,12 +98,11 @@ class App extends Component{
     }
 
     onSubmit = (event) => {
-        //const { input } = this.state
-        this.setState({imageUrl: this.state.input});
-        app.models.predict(Clarifai.FACE_DETECT_MODEL, this.state.input)
+        const { input } = this.state
+        this.setState({imageUrl: input});
+        app.models.predict(Clarifai.FACE_DETECT_MODEL, input)
         .then(response => {
             if (response){
-                console.log(response);
                 fetch('http://localhost:3000/image', {
                     method: 'put',
                     headers:{'Content-Type': 'application/json'},
@@ -95,10 +111,11 @@ class App extends Component{
         
                     })
                 })
-               .then(response => {console.log(response, "from local");response.json();})
+               .then(response => response.json())
                .then(count =>{
                    this.setState(Object.assign(this.state.user, {entries: count}))
                })
+               .catch(console.log)
             }
             this.displayFaceBox(this.calculateFaceLocation(response))
         
@@ -108,7 +125,7 @@ class App extends Component{
 
     onRouteChange = (route) => {
         if (route === 'signout'){
-            this.setState({isSignedIn:false})
+            this.setState(initialState)
         }else if (route === 'home'){
             this.setState({isSignedIn:true})
         }
@@ -116,8 +133,8 @@ class App extends Component{
     }
 
     render() {
+
         const { robots, searchfield} = this.state;
-        // console.log(this.state);
         const filteredRobots =robots.filter(robot=>{
             return robot.name.toLowerCase().includes(searchfield.toLowerCase());
         })
@@ -126,6 +143,9 @@ class App extends Component{
         }else{
             return (
                 <div className='tc'>
+                    <Particles className= 'particles'
+                     params ={particlesOptions}
+                    />
                     <Navigation isSignedIn= {this.state.isSignedIn} onRouteChange = {this.onRouteChange}/>
                     { this.state.route === 'home' ? 
                     <div>
