@@ -1,8 +1,8 @@
 import React from 'react'
 
 class Register extends React.Component{
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
         this.state = {
             inputName: "",
             inputEmail: '',
@@ -21,7 +21,7 @@ class Register extends React.Component{
     }
 
     onSubmitRegister = () =>{
-        fetch ('http://localhost:3000/register', {
+        fetch ('http://localhost:3005/register', {
             method:'post',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -30,14 +30,11 @@ class Register extends React.Component{
                 password: this.state.inputPassword,
             })
         })
-            .then (response => response.json())
+            .then (response => response.json())           
             .then (user =>{
-                if (user){
-                    this.props.loadUser(user)
-                  alert('You can now sign in')
+                if (user.id){
+                    this.props.loadUser(user) 
                   this.props.onRouteChange('home')
-                }else{
-               
                 }
             })
     }
